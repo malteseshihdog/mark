@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { useTranslation } from "react-i18next"
@@ -12,16 +12,20 @@ import { ReactComponent as MenuIcon } from "styles/images/menu/Menu.svg"
 import { ReactComponent as WalletIcon } from "styles/images/menu/Wallet.svg"
 import { ReactComponent as SwapIcon } from "styles/images/menu/Swap.svg"
 import { ReactComponent as StakeIcon } from "styles/images/menu/Stake.svg"
+import { ReactComponent as ArrowUpIcon } from "styles/images/icons/ArrowUp.svg"
 
 import is from "auth/scripts/is"
 import QRScan from "./QRScan"
+import { IconButton } from "@mui/material"
+import { useIsMobile } from "../../auth/hooks/useIsMobile"
+import { clearInterval } from "timers"
 
 const cx = classNames.bind(styles)
 
 const Nav = () => {
   useCloseMenuOnNavigate()
   const { t } = useTranslation()
-  const { menu, mobileMenu, subPage } = useNav()
+  const { menu: defaultMenu, mobileMenu, subPage } = useNav()
   const icon = useThemeFavicon()
   const [isOpen, setIsOpen] = useRecoilState(mobileIsMenuOpenState)
   const toggle = () => setIsOpen(!isOpen)
@@ -48,8 +52,33 @@ const Nav = () => {
     }
   }, [pathname, subPage])
 
+  const isMobile = useIsMobile()
+
+  const menu = useMemo(
+    () => (isMobile ? mobileMenu : defaultMenu),
+    [isMobile, defaultMenu, mobileMenu]
+  )
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // setIsOpen((a) => !a);
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [setIsOpen])
+
   return buttonView ? (
-    <nav>
+    <nav
+      className={classNames(
+        styles.nav,
+        isOpen ? styles.nav_open : styles.nav_closed
+      )}
+    >
+      <div className={styles.nav_expand_button}>
+        <IconButton onClick={toggle}>
+          <ArrowUpIcon />
+        </IconButton>
+      </div>
       <header className={styles.header}>
         <a
           href="https://setup-station.terra.money/"
@@ -60,81 +89,21 @@ const Nav = () => {
           <img src={icon} alt="Station" /> <strong>Station</strong>
         </a>
 
-        <NavLink
-          to="/wallet"
-          onClick={close}
-          className={({ isActive }) =>
-            cx(styles.mobileItem, { active: isActive && !isOpen })
-          }
-        >
-          <>
-            <WalletIcon {...ICON_SIZE} />
-            {t("WALLET")}
-          </>
-        </NavLink>
-
-        <NavLink
-          to="/swap"
-          onClick={close}
-          className={({ isActive }) =>
-            cx(styles.mobileItem, { active: isActive && !isOpen })
-          }
-        >
-          <>
-            <SwapIcon {...ICON_SIZE} />
-            {t("SWAP")}
-          </>
-        </NavLink>
-
-        <NavLink
-          to="/stake"
-          onClick={close}
-          className={({ isActive }) =>
-            cx(styles.mobileItem, { active: isActive && !isOpen })
-          }
-        >
-          <>
-            <StakeIcon {...ICON_SIZE} />
-            {t("STAKE")}
-          </>
-        </NavLink>
-
-        <button
-          className={cx(styles.toggle, styles.mobileItem, {
-            active: isOpen || isNeedMoreBtn,
-          })}
-          onClick={toggle}
-        >
-          <MenuIcon {...ICON_SIZE} />
-          {t("MORE")}
-        </button>
-      </header>
-
-      <section className={styles.menu}>
-        <div className={classNames(styles.menuTitle)}>
-          <NavLink to="/wallet" onClick={close}>
-            <strong>Terra</strong> Station
-          </NavLink>
-          {is.mobileNative() && (
+        {menu.map((item) => (
+          <NavLink
+            to={item.path}
+            onClick={close}
+            className={({ isActive }) =>
+              cx(styles.mobileItem, { active: isActive })
+            }
+          >
             <>
-              <QRScan />
+              {item.icon}
+              {t(item.title)}
             </>
-          )}
-        </div>
-        <div className={classNames(styles.menuList)}>
-          {(is.mobile() ? mobileMenu : menu).map(({ path, title, icon }) => (
-            <NavLink
-              to={path}
-              className={cx(styles.item, styles.link)}
-              key={path}
-              onClick={close}
-            >
-              {icon}
-              {title}
-            </NavLink>
-          ))}
-        </div>
-      </section>
+          </NavLink>
+        ))}
+      </header>
     </nav>
   ) : (
     <></>

@@ -1,20 +1,81 @@
 @import "mixins";
 
-.header {
-  @include flex(space-between);
+.nav {
+  z-index: 99;
+  @include mobile {
+    height: 160px;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    background: radial-gradient(
+      circle at top center,
+      transparent,
+      transparent 28px,
+      var(--card-bg) 28px,
+      var(--card-bg)
+    );
+    border-color: var(--card-bg);
+    border-radius: 8px 8px 0 0;
+  }
+  transition: bottom 0.2s ease-in-out;
+}
 
-  border-bottom: var(--border-width) solid var(--menu-border);
+.nav_open {
+  @include mobile {
+    bottom: 0;
+  }
+  .nav_expand_button {
+    @include mobile {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.nav_closed {
+  @include mobile {
+    bottom: 96px - 160px;
+  }
+
+  .header {
+    height: 60px;
+    overflow: hidden;
+  }
+}
+
+.nav_expand_button {
+  @include mobile {
+    @include flex(center);
+
+    width: 46px;
+    height: 46px;
+
+    position: absolute;
+    top: -23px;
+    left: 0;
+    right: 0;
+
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+
+    background: var(--button-primary-bg);
+    border-radius: 50%;
+    transition: transform 0.2s ease-in-out;
+  }
+}
+
+.header {
+  @include flex(space-between, left);
+
   margin-bottom: (40px - 14px);
+  transition: height 0.2s ease-in-out;
 
   @include mobile {
     @include flex(space-around, flex-start);
-    position: fixed;
-    bottom: 0;
+    flex-wrap: wrap;
     width: 100%;
-    height: var(--mobile-tab-height);
+    margin-top: 16px;
     margin-bottom: 0;
-    border-color: var(--card-bg);
-    background: var(--card-bg);
     z-index: 10;
     box-shadow: 0px -10px 20px rgb(0 0 0 / 3%);
 
@@ -56,6 +117,7 @@
   font-size: 20px;
   font-weight: 300;
   padding: 0 20px;
+  height: var(--mobile-tab-height);
   line-height: var(--header-height);
   fill: var(--text);
   a {
@@ -80,8 +142,10 @@
 }
 
 .mobileItem {
-  @include flex-column(flex-start);
-
+  @include flex-column(center, center);
+  flex: 1 1 21%;
+  align-self: flex-start;
+  height: var(--mobile-tab-height);
   padding: 8px;
   color: var(--text);
   fill: var(--text);
