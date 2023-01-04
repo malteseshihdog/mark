@@ -11,6 +11,7 @@ import {
 import QuickStake from "./QuickStake"
 import { TooltipIcon } from "components/display"
 import QuickStakeTooltip from "./QuickStakeTooltip"
+import Game from "app/Game/game"
 
 const Stake = () => {
   const { t } = useTranslation()
@@ -42,7 +43,8 @@ const Stake = () => {
       }
     >
       <Col>
-        {graphData?.all.length ? (
+        <Game />
+        {/* {graphData?.all.length ? (
           <Row>
             <StakedDonut />
             <Staked />
@@ -51,7 +53,7 @@ const Stake = () => {
           <Staked />
         )}
 
-        <Tabs tabs={tabs} type="page" />
+        <Tabs tabs={tabs} type="page" /> */}
       </Col>
     </Page>
   )
